@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>에이전트 설정 — Multi-Agent Studio</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/agents.css">
+</head>
+<body>
+
+<!-- 모바일 햄버거 메뉴 -->
+<button class="hamburger" id="hamburger-btn" aria-label="메뉴 열기">☰</button>
+
+<!-- 사이드바 -->
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="주 내비게이션"></aside>
+
+<main class="main" role="main">
+
+  <!-- 페이지 헤더 -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">에이전트 <span>설정</span></h1>
+      <p class="page-subtitle">각 에이전트의 AI 모델과 토큰 배율을 조정합니다</p>
+    </div>
+    <div class="header-actions">
+      <a href="../index.html" class="btn btn-ghost">← 파이프라인</a>
+    </div>
+  </div>
+
+  <!-- 에이전트 설정 2열 레이아웃 -->
+  <div class="agents-layout">
+
+    <!-- 좌측: 에이전트 목록 -->
+    <div>
+      <div class="section-header">
+        <h2 class="section-title">에이전트 목록</h2>
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim)">
+          클릭하여 설정 변경
+        </span>
+      </div>
+      <!-- 에이전트 카드 목록 (agents.js가 동적 생성) -->
+      <div id="agent-list" style="display:flex;flex-direction:column;gap:10px;" role="list" aria-label="에이전트 목록">
+        <div style="text-align:center;padding:32px;color:var(--text-dim);font-family:var(--font-mono);font-size:11px;">
+          로딩 중...
+        </div>
+      </div>
+    </div>
+
+    <!-- 우측: 편집 패널 (agents.js가 동적 생성) -->
+    <div>
+      <div class="section-header">
+        <h2 class="section-title">설정 편집</h2>
+      </div>
+      <div class="edit-panel" id="edit-panel" role="region" aria-label="에이전트 설정 편집 패널">
+        <!-- 초기에는 빈 패널 표시 -->
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script src="../js/store.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/agents.js"></script>
+
+</body>
+</html>

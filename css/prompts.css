@@ -1,0 +1,236 @@
+/* ========================================
+   Prompts CSS — 프롬프트 편집 페이지 전용
+   에이전트 탭 + textarea 편집기
+   ======================================== */
+
+/* ─── 에이전트 탭 ─── */
+.agent-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 0;
+}
+
+.agent-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+  margin-bottom: -1px;
+  min-height: 44px;
+}
+
+.agent-tab:hover { color: var(--text); }
+
+.agent-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent-pipe);
+}
+
+.agent-tab .tab-icon { font-size: 16px; }
+.agent-tab .tab-badge { font-size: 9px; }
+
+/* ─── 편집기 레이아웃 ─── */
+.prompt-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ─── 편집기 카드 ─── */
+.editor-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  animation: slideIn 0.3s ease both;
+}
+
+.editor-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.editor-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.editor-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.editor-body { padding: 0; }
+
+/* ─── 프롬프트 textarea ─── */
+.prompt-textarea {
+  width: 100%;
+  min-height: 360px;
+  background: var(--surface);
+  border: none;
+  outline: none;
+  padding: 20px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  resize: vertical;
+  transition: background var(--transition-fast);
+}
+
+.prompt-textarea:focus {
+  background: var(--surface2);
+}
+
+.prompt-textarea::placeholder {
+  color: var(--text-dim);
+}
+
+/* ─── 편집기 하단 액션바 ─── */
+.editor-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.editor-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.token-estimate {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.token-estimate span {
+  color: var(--accent-design);
+}
+
+/* ─── 변수 삽입 버튼 ─── */
+.variable-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.variable-chips-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.variable-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-design);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-height: 32px;
+  width: 100%;
+}
+
+.variable-chip:hover {
+  border-color: var(--accent-design);
+  background: rgba(167, 139, 250, 0.08);
+}
+
+.variable-chip-code {
+  font-weight: 700;
+  flex: 1;
+}
+
+.variable-chip-desc {
+  color: var(--text-dim);
+  font-size: 9px;
+}
+
+/* ─── 우측 사이드 패널 ─── */
+.prompt-side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 32px;
+}
+
+.side-panel-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  animation: slideIn 0.4s ease both;
+}
+
+.side-panel-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+/* ─── 프롬프트 변수 설명 ─── */
+.variable-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.variable-info-code {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-design);
+  font-weight: 700;
+}
+
+.variable-info-desc {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+/* ─── 반응형 ─── */
+@media (max-width: 1000px) {
+  .prompt-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .prompt-side-panel {
+    position: static;
+  }
+}

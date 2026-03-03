@@ -1,0 +1,36 @@
+{
+  "runs": [
+    {
+      "id": "run-001",
+      "label": "1차 실행",
+      "status": "completed",
+      "createdAt": "2026-03-03T09:14:00Z",
+      "completedAt": "2026-03-03T09:14:28Z",
+      "totalTokens": 2650,
+      "completedSteps": 4,
+      "totalSteps": 4,
+      "results": [
+        { "agentId": "pm",       "status": "done",    "duration": 3.2, "tokens": 1250, "outputId": "out-run001-pm" },
+        { "agentId": "designer", "status": "done",    "duration": 5.8, "tokens": 980,  "outputId": "out-run001-designer" },
+        { "agentId": "dev",      "status": "done",    "duration": 7.1, "tokens": 420,  "outputId": "out-run001-dev" },
+        { "agentId": "qa",       "status": "done",    "duration": 4.5, "tokens": 390,  "outputId": "out-run001-qa" }
+      ]
+    },
+    {
+      "id": "run-002",
+      "label": "2차 실행",
+      "status": "completed",
+      "createdAt": "2026-03-03T10:30:00Z",
+      "completedAt": "2026-03-03T10:31:12Z",
+      "totalTokens": 3120,
+      "completedSteps": 4,
+      "totalSteps": 4,
+      "results": [
+        { "agentId": "pm",       "status": "done",    "duration": 3.8, "tokens": 1480, "outputId": "out-run002-pm" },
+        { "agentId": "designer", "status": "done",    "duration": 6.2, "tokens": 1100, "outputId": "out-run002-designer" },
+        { "agentId": "dev",      "status": "done",    "duration": 8.4, "tokens": 540,  "outputId": "out-run002-dev" },
+        { "agentId": "qa",       "status": "done",    "duration": 5.1, "tokens": 420,  "outputId": "out-run002-qa" }
+      ]
+    }
+  ]
+}

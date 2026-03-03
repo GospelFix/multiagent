@@ -1,0 +1,35 @@
+# 개발자 온라인 서비스 MVP
+
+> 이 프로젝트는 MVP 개발 에이전트를 만들기 입니다.
+
+## 프로젝트 정보
+
+- 목적: Claude Code 테스트 및 MVP 검증
+- 단계: MVP (최소 기능 제품)
+- 타겟: 개발자
+
+## 기술 스택
+
+- Frontend: HTML5, CSS3, Vanilla JS (ES6+)
+- Backend:  (PostgreSQL, Authentication, RLS)
+- Deployment: GitHub Pages (Frontend)
+
+## 주요 파일
+
+- CLAUDE.md: AI 개발 가이드 진입점
+- config/mvp-stack.yaml: 기술 스택 정의
+- config/design-system.md: 디자인 시스템
+- prompt/mvp-rules.md: MVP 개발 규칙
+- prompt/templates.md: 작업 템플릿
+
+## 개발 원칙
+
+1. MVP 수준 유지 - 최소 기능으로 빠르게 검증
+2. 외부 라이브러리 최소화 - Vanilla JS 우선
+3. 를 백엔드로 활용
+
+## 문서
+
+- 기술 스택: /config/mvp-stack.yaml
+- 디자인 시스템: /config/design-system.md
+- 개발 규칙: /prompt/mvp-rules.md

@@ -1,0 +1,244 @@
+/* ========================================
+   Output JS — 아웃풋 뷰어 페이지 로직
+   파일 목록 + 콘텐츠 뷰어 + 복사/다운로드
+   ======================================== */
+
+'use strict';
+
+let agentsData = [];
+let historyData = [];
+let outputsData = [];
+let activeOutputId = null;
+
+/* ─── 초기화 ─── */
+const init = async () => {
+  try {
+    [agentsData, historyData, outputsData] = await Promise.all([
+      fetchJSON('../data/agents.json').then(d => d.agents),
+      fetchJSON('../data/history.json').then(d => d.runs),
+      fetchJSON('../data/outputs.json').then(d => d.outputs),
+    ]);
+
+    renderFilePanel();
+
+    /* URL 파라미터로 초기 선택 결정 */
+    const params = new URLSearchParams(window.location.search);
+    const outputParam = params.get('output');
+    const runParam = params.get('run');
+
+    if (outputParam) {
+      selectOutput(outputParam);
+    } else if (runParam) {
+      /* 특정 런의 첫 번째 아웃풋 선택 */
+      const firstOutput = outputsData.find(o => o.runId === runParam);
+      if (firstOutput) selectOutput(firstOutput.id);
+      else renderEmptyViewer();
+    } else {
+      /* 기본: 가장 최신 아웃풋 선택 */
+      const latest = outputsData[0];
+      if (latest) selectOutput(latest.id);
+      else renderEmptyViewer();
+    }
+  } catch (e) {
+    console.error('아웃풋 데이터 로드 실패:', e);
+    renderEmptyViewer();
+  }
+};
+
+/** JSON fetch 헬퍼 */
+const fetchJSON = async (url) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`fetch 실패: ${url}`);
+  return res.json();
+};
+
+/* ─── 파일 목록 패널 렌더링 ─── */
+const renderFilePanel = () => {
+  const container = document.getElementById('file-panel-body');
+  if (!container) return;
+
+  /* 실행 별로 그룹핑 */
+  const grouped = {};
+  outputsData.forEach(output => {
+    if (!grouped[output.runId]) grouped[output.runId] = [];
+    grouped[output.runId].push(output);
+  });
+
+  const groupsHTML = historyData.map(run => {
+    const runOutputs = grouped[run.id];
+    if (!runOutputs || !runOutputs.length) return '';
+
+    const itemsHTML = runOutputs.map(output => {
+      const agent = agentsData.find(a => a.id === output.agentId);
+      if (!agent) return '';
+
+      const isActive = output.id === activeOutputId;
+
+      return `
+        <div class="file-item${isActive ? ' active' : ''}" data-output-id="${output.id}"
+             role="button" tabindex="0" aria-label="${output.label} 열기">
+          <div class="file-item-icon">${agent.icon}</div>
+          <div class="file-item-info">
+            <div class="file-item-name" style="color:var(${agent.accentVar})">📄 ${output.fileName}</div>
+            <div class="file-item-meta">${agent.name} · ${agent.rank}</div>
+          </div>
+          <div class="file-item-dot" style="background:var(${agent.accentVar})"></div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="run-group">
+        <div class="run-group-label">${run.label}</div>
+        ${itemsHTML}
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = groupsHTML || '<div style="text-align:center;color:var(--text-dim);font-size:11px;padding:20px">파일 없음</div>';
+
+  /* 파일 항목 이벤트 */
+  container.querySelectorAll('.file-item[data-output-id]').forEach(item => {
+    item.addEventListener('click', () => selectOutput(item.dataset.outputId));
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') selectOutput(item.dataset.outputId);
+    });
+  });
+};
+
+/** 아웃풋 선택 → 뷰어 업데이트 */
+const selectOutput = (outputId) => {
+  activeOutputId = outputId;
+  renderFilePanel(); // 선택 표시 갱신
+  renderContentViewer(outputId);
+
+  /* Store에 선택 상태 저장 */
+  Store.set({ selectedOutputId: outputId });
+};
+
+/* ─── 콘텐츠 뷰어 렌더링 ─── */
+const renderContentViewer = (outputId) => {
+  const viewer = document.getElementById('content-viewer');
+  if (!viewer) return;
+
+  const output = outputsData.find(o => o.id === outputId);
+  if (!output) {
+    renderEmptyViewer();
+    return;
+  }
+
+  const agent = agentsData.find(a => a.id === output.agentId);
+  const run = historyData.find(r => r.id === output.runId);
+  if (!agent || !run) return;
+
+  const createdAt = formatDate(output.createdAt);
+
+  viewer.innerHTML = `
+    <div class="viewer-header">
+      <div>
+        <div class="viewer-title">
+          <span>${agent.icon}</span>
+          <span style="color:var(${agent.accentVar})">${output.label}</span>
+          <span class="rank-badge" style="background:var(${agent.glowVar});color:var(${agent.accentVar})">${agent.rank}</span>
+        </div>
+        <div class="viewer-meta">${run.label} · ${createdAt}</div>
+      </div>
+      <div class="viewer-actions">
+        <button class="btn btn-ghost btn-sm copy-btn" id="copy-btn" aria-label="내용 복사">
+          📋 복사
+        </button>
+        <button class="btn btn-ghost btn-sm" id="download-btn" aria-label="파일 다운로드">
+          ⬇️ 다운로드
+        </button>
+      </div>
+    </div>
+    <div class="viewer-body">
+      <pre class="content-text" id="content-text">${escapeHTML(output.content)}</pre>
+    </div>
+  `;
+
+  /* 복사 버튼 */
+  document.getElementById('copy-btn').addEventListener('click', () => copyContent(output.content));
+
+  /* 다운로드 버튼 */
+  document.getElementById('download-btn').addEventListener('click', () => downloadContent(output));
+};
+
+/** 빈 뷰어 */
+const renderEmptyViewer = () => {
+  const viewer = document.getElementById('content-viewer');
+  if (!viewer) return;
+
+  viewer.innerHTML = `
+    <div class="viewer-empty">
+      <div class="viewer-empty-icon">📄</div>
+      <div class="viewer-empty-text">
+        좌측에서 파일을 선택하면<br>내용이 표시됩니다
+      </div>
+    </div>
+  `;
+};
+
+/* ─── 복사 ─── */
+const copyContent = async (text) => {
+  const btn = document.getElementById('copy-btn');
+  try {
+    await navigator.clipboard.writeText(text);
+    if (btn) {
+      btn.textContent = '✓ 복사됨';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '📋 복사';
+        btn.classList.remove('copied');
+      }, 2000);
+    }
+  } catch {
+    /* clipboard API 미지원 시 fallback */
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.style.position = 'fixed';
+    el.style.opacity = '0';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    if (btn) {
+      btn.textContent = '✓ 복사됨';
+      setTimeout(() => { btn.textContent = '📋 복사'; }, 2000);
+    }
+  }
+};
+
+/* ─── 다운로드 ─── */
+const downloadContent = (output) => {
+  const blob = new Blob([output.content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${output.fileName}_${output.runId}.txt`;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  /* 메모리 해제 */
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+/** HTML 이스케이프 (XSS 방지) */
+const escapeHTML = (str) => {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
+/** 날짜 포맷 */
+const formatDate = (isoString) => {
+  const d = new Date(isoString);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+};
+
+/* ─── DOM 준비 후 초기화 ─── */
+document.addEventListener('DOMContentLoaded', init);

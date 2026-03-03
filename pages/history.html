@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>실행 히스토리 — Multi-Agent Studio</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/history.css">
+</head>
+<body>
+
+<!-- 모바일 햄버거 메뉴 -->
+<button class="hamburger" id="hamburger-btn" aria-label="메뉴 열기">☰</button>
+
+<!-- 사이드바 -->
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="주 내비게이션"></aside>
+
+<main class="main" role="main">
+
+  <!-- 페이지 헤더 -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">실행 <span>히스토리</span></h1>
+      <p class="page-subtitle">지난 파이프라인 실행 결과를 확인합니다</p>
+    </div>
+    <div class="header-actions">
+      <a href="../index.html" class="btn btn-primary" aria-label="새 실행 시작">
+        ▶ 새 실행
+      </a>
+    </div>
+  </div>
+
+  <!-- 필터/정렬 바 -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+    <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">
+      총 <span id="total-runs" style="color:var(--text)">0</span>건의 실행 기록
+    </span>
+  </div>
+
+  <!-- 히스토리 목록 (history.js가 동적 생성) -->
+  <div class="history-list" id="history-list" role="list" aria-label="실행 히스토리 목록">
+    <div style="text-align:center;padding:32px;color:var(--text-dim);font-family:var(--font-mono);font-size:11px;">
+      로딩 중...
+    </div>
+  </div>
+
+</main>
+
+<script src="../js/store.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/history.js"></script>
+
+<script>
+  /* 총 실행 건수 표시 */
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      const list = document.getElementById('history-list');
+      const cards = list?.querySelectorAll('.history-card');
+      const totalEl = document.getElementById('total-runs');
+      if (totalEl && cards) totalEl.textContent = cards.length;
+    }, 500);
+  });
+</script>
+
+</body>
+</html>

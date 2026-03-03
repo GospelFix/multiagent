@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>파이프라인 — Multi-Agent Studio</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/pipeline.css">
+</head>
+<body>
+
+<!-- 모바일 햄버거 메뉴 버튼 -->
+<button class="hamburger" id="hamburger-btn" aria-label="메뉴 열기">☰</button>
+
+<!-- 사이드바 (app.js가 동적 생성) -->
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="주 내비게이션"></aside>
+
+<!-- 메인 콘텐츠 -->
+<main class="main" role="main">
+
+  <!-- 페이지 헤더 -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">파이프라인 <span>실행</span></h1>
+      <p class="page-subtitle">여러 번 실행할수록 이전 결과물이 다음 실행의 컨텍스트로 누적됩니다</p>
+    </div>
+    <div class="header-actions">
+      <a href="#" class="btn btn-ghost">← 프로젝트</a>
+      <button class="btn btn-primary" id="run-btn-header" aria-label="전체 파이프라인 실행">
+        ▶ 전체 실행
+      </button>
+    </div>
+  </div>
+
+  <!-- 파이프라인 2열 레이아웃 -->
+  <div class="pipeline-layout">
+
+    <!-- 좌측: 파이프라인 설정 -->
+    <div>
+      <!-- 컨텍스트 누적 알림 배너 -->
+      <div class="context-notice" role="status" aria-live="polite">
+        <span class="context-icon" aria-hidden="true">🔗</span>
+        <span class="context-text">컨텍스트 누적 중 — 1차 실행 결과물이 다음 실행에 자동 포함됩니다</span>
+      </div>
+
+      <!-- 파이프라인 카드 -->
+      <div class="card pipeline-card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">단계 구성</div>
+            <div class="card-subtitle">에이전트 → 아웃풋 파일</div>
+          </div>
+          <button class="run-btn" id="run-btn-card" aria-label="파이프라인 실행">
+            <span aria-hidden="true">▶</span> 실행 중
+          </button>
+        </div>
+
+        <!-- 에이전트 스텝 (pipeline.js가 동적 생성) -->
+        <div class="agent-steps" id="agent-steps" role="list" aria-label="파이프라인 단계">
+          <!-- JS 로드 전 로딩 표시 -->
+          <div style="text-align:center;padding:32px;color:var(--text-dim);font-family:var(--font-mono);font-size:11px;">
+            로딩 중...
+          </div>
+        </div>
+      </div>
+
+      <!-- 에이전트 카드 그리드 -->
+      <div class="agents-section">
+        <div class="section-header">
+          <h2 class="section-title">에이전트 설정</h2>
+          <a href="./pages/agents.html" class="btn btn-ghost btn-sm" aria-label="에이전트 추가">
+            + 추가
+          </a>
+        </div>
+        <!-- 에이전트 카드 (pipeline.js가 동적 생성) -->
+        <div class="agents-grid" id="agent-cards-grid" role="list" aria-label="에이전트 목록">
+          <!-- 로딩 플레이스홀더 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 우측: 실행 패널 -->
+    <div class="run-panel">
+
+      <!-- 실행 히스토리 카드 -->
+      <div class="run-history-card">
+        <div class="run-history-header">
+          <!-- 실행 탭 (pipeline.js가 동적 생성) -->
+          <div class="run-tabs" id="run-tabs" role="tablist" aria-label="실행 기록 탭">
+          </div>
+          <div class="run-status" aria-live="polite">
+            <div class="status-dot" id="run-status-dot" aria-hidden="true"></div>
+            <span id="run-status-label" style="font-family:var(--font-mono);font-size:10px;">대기</span>
+          </div>
+        </div>
+
+        <!-- 결과 리스트 (pipeline.js가 동적 생성) -->
+        <div class="run-result-list" id="run-result-list" role="list" aria-label="에이전트 실행 결과">
+        </div>
+
+        <!-- 토큰 사용량 바 -->
+        <div class="token-section">
+          <div class="token-section-label">토큰 사용량</div>
+          <div class="token-bar-wrap" id="token-bar-wrap" aria-label="에이전트별 토큰 사용량">
+          </div>
+        </div>
+      </div>
+
+      <!-- 아웃풋 미리보기 -->
+      <div class="output-preview">
+        <div class="preview-header">
+          <div class="preview-title" id="preview-title">📄 PRD 미리보기</div>
+          <a href="./pages/output.html" class="btn btn-ghost btn-sm" id="preview-link"
+             aria-label="전체 아웃풋 보기">
+            전체보기
+          </a>
+        </div>
+        <div class="preview-body">
+          <div class="preview-text" id="preview-text">
+            파이프라인을 실행하면 결과물이 여기에 표시됩니다.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- 의존성 순서: store → app → pipeline -->
+<script src="./js/store.js"></script>
+<script src="./js/app.js"></script>
+<script src="./js/pipeline.js"></script>
+
+</body>
+</html>

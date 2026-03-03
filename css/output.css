@@ -1,0 +1,225 @@
+/* ========================================
+   Output CSS — 아웃풋 뷰어 페이지 전용
+   좌측 파일 목록 + 우측 콘텐츠 뷰어
+   ======================================== */
+
+/* ─── 아웃풋 레이아웃 ─── */
+.output-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+  align-items: start;
+  height: calc(100vh - 120px);
+}
+
+/* ─── 파일 목록 패널 ─── */
+.file-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease both;
+}
+
+.file-panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.file-panel-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.file-panel-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 12px;
+}
+
+/* ─── 실행 그룹 ─── */
+.run-group {
+  margin-bottom: 16px;
+}
+
+.run-group-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+
+/* ─── 파일 항목 ─── */
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: 2px;
+  min-height: 44px;
+}
+
+.file-item:hover {
+  background: var(--surface2);
+}
+
+.file-item.active {
+  background: var(--surface2);
+  border: 1px solid var(--border-bright);
+}
+
+.file-item-icon { font-size: 14px; flex-shrink: 0; }
+
+.file-item-info { flex: 1; min-width: 0; }
+
+.file-item-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-item-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.file-item-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ─── 콘텐츠 뷰어 ─── */
+.content-viewer {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease both;
+  animation-delay: 0.05s;
+}
+
+.viewer-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.viewer-title {
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.viewer-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.viewer-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.viewer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* ─── 콘텐츠 텍스트 ─── */
+.content-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 마크다운 스타일 (헤더) */
+.content-text h1, .content-text h2, .content-text h3 {
+  color: var(--text);
+  font-family: var(--font-sans);
+  margin-bottom: 8px;
+  margin-top: 24px;
+}
+
+/* ─── 복사 완료 피드백 ─── */
+.copy-btn.copied {
+  color: var(--accent-dev) !important;
+  border-color: var(--accent-dev) !important;
+}
+
+/* ─── 빈 상태 ─── */
+.viewer-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 24px;
+}
+
+.viewer-empty-icon {
+  font-size: 40px;
+  opacity: 0.3;
+  margin-bottom: 16px;
+}
+
+.viewer-empty-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+/* ─── 반응형 ─── */
+@media (max-width: 900px) {
+  .output-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .file-panel {
+    height: auto;
+    max-height: 300px;
+  }
+
+  .content-viewer {
+    height: 600px;
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "agents": [
+    {
+      "id": "pm",
+      "name": "PM",
+      "icon": "🎯",
+      "rank": "과장",
+      "rankIcon": "⭐",
+      "desc": "요구사항 분석, PRD 작성",
+      "model": "claude-haiku-4-5",
+      "outputFile": "prd",
+      "tokenMultiplier": 1.25,
+      "accentVar": "--accent-pm",
+      "glowVar": "--glow-pm",
+      "colorClass": "pm",
+      "systemPrompt": "당신은 프로덕트 매니저입니다. 사용자의 아이디어를 분석하여 상세한 PRD(Product Requirements Document)를 작성합니다. 기능 요구사항, 비기능 요구사항, 사용자 스토리를 포함해야 합니다."
+    },
+    {
+      "id": "designer",
+      "name": "DESIGNER",
+      "icon": "🎨",
+      "rank": "대리",
+      "rankIcon": "🖥",
+      "desc": "UI/UX 설계, DESIGN 문서",
+      "model": "gemini-2.0-flash",
+      "outputFile": "design",
+      "tokenMultiplier": 1.0,
+      "accentVar": "--accent-design",
+      "glowVar": "--glow-design",
+      "colorClass": "design",
+      "systemPrompt": "당신은 UI/UX 디자이너입니다. PRD를 기반으로 사용자 경험을 설계합니다. 화면 구조, 컴포넌트 명세, 인터랙션 패턴을 상세히 문서화합니다."
+    },
+    {
+      "id": "dev",
+      "name": "DEV",
+      "icon": "💻",
+      "rank": "신입사원",
+      "rankIcon": "🌱",
+      "desc": "기술 스펙, 코드 생성",
+      "model": "codex-mini-latest",
+      "outputFile": "tech_spec",
+      "tokenMultiplier": 0.75,
+      "accentVar": "--accent-dev",
+      "glowVar": "--glow-dev",
+      "colorClass": "dev",
+      "systemPrompt": "당신은 풀스택 개발자입니다. PRD와 디자인 문서를 바탕으로 기술 명세서를 작성합니다. 아키텍처, API 설계, 데이터베이스 스키마, 구현 계획을 포함합니다."
+    },
+    {
+      "id": "qa",
+      "name": "QA",
+      "icon": "🔍",
+      "rank": "팀장",
+      "rankIcon": "👑",
+      "desc": "테스트 계획, 엣지케이스",
+      "model": "gpt-4o",
+      "outputFile": "test_plan",
+      "tokenMultiplier": null,
+      "accentVar": "--accent-qa",
+      "glowVar": "--glow-qa",
+      "colorClass": "qa",
+      "systemPrompt": "당신은 QA 엔지니어입니다. 전체 문서를 검토하여 종합적인 테스트 계획을 수립합니다. 기능 테스트, 엣지케이스, 성능 테스트 시나리오를 작성합니다."
+    }
+  ]
+}
