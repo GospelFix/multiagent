@@ -1,10 +1,6 @@
 ---
 name: develop
-<<<<<<< HEAD
-description: Multi-Agent Studio 개발 시 코드 스타일 가이드 및 프로젝트 컨텍스트를 로드합니다. 새 기능 추가, 버그 수정, 페이지 생성 전에 실행하세요.
-=======
 description: $ARGUMENTS 개발 시 코드 스타일 가이드 및 프로젝트 컨텍스트를 로드합니다. 새 기능 추가, 버그 수정, 페이지 생성 전에 실행하세요.
->>>>>>> 054604b4fc3eb0ae4ae2ecba298157b85d32d557
 updated: 2026-03-03
 model: sonnet
 ---
@@ -13,11 +9,7 @@ model: sonnet
 @.claude/RULES.md
 @.claude/TASK.md
 
-<<<<<<< HEAD
-# Multi-Agent Studio — 개발 가이드
-=======
 # $ARGUMENTS — 개발 가이드
->>>>>>> 054604b4fc3eb0ae4ae2ecba298157b85d32d557
 
 ## 파일 구조
 
