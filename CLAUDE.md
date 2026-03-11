@@ -21,6 +21,6 @@ updated: 2026-01-30
 
 ## 모든 규칙
 
-1. `@.claude/CLAUDE.md` 참조
+1. `@.claude/commands/develop.md` 참조
 
 ---
