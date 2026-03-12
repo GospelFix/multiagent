@@ -84,9 +84,9 @@ const AGENCY_OPTIONS = [
   },
 ];
 
-/* ─── URL 파라미터에서 에이전시 파일명 읽기 (없으면 Store에서) ─── */
+/* ─── URL 파라미터에서 에이전시 파일명 읽기 (없으면 Store에서, 둘 다 없으면 null) ─── */
 const URL_PARAMS  = new URLSearchParams(window.location.search);
-let   AGENTS_FILE = URL_PARAMS.get('agents') || Store.get().selectedAgency || 'agents.json';
+let   AGENTS_FILE = URL_PARAMS.get('agents') || Store.get().selectedAgency || null;
 
 /* 에이전시 유형별 메타 정보 (제목·서브타이틀·돌아가기 링크) */
 const AGENCY_META = {
@@ -118,9 +118,13 @@ const AGENCY_META = {
 
 /* ─── 초기화 ─── */
 const init = async () => {
+  /* 선택기 먼저 렌더 (선택된 항목 없을 수도 있음) */
+  renderAgencySelector();
+
+  if (!AGENTS_FILE) return; /* 선택 전: 에이전트 목록 표시 안 함 */
+
   try {
     await loadAgency(AGENTS_FILE);
-
     const agentParam = URL_PARAMS.get('agent');
     if (agentParam) selectAgent(agentParam);
     else renderEmptyPanel();
@@ -143,6 +147,17 @@ const loadAgency = async (file) => {
   renderAgentList();
   renderEmptyPanel();
   selectedAgentId = null;
+
+  /* 에이전시 선택 후 에이전트 레이아웃 표시 */
+  const layout = document.getElementById('agents-layout');
+  if (layout) layout.style.display = 'grid';
+
+  /* 파이프라인 적용 버튼 표시 + 텍스트 갱신 */
+  const meta     = AGENCY_META[file] || AGENCY_META['agents.json'];
+  const applyWrap = document.getElementById('apply-agency-wrap');
+  const applyBtn  = document.getElementById('apply-agency-btn');
+  if (applyWrap) applyWrap.style.display = 'flex';
+  if (applyBtn)  applyBtn.textContent = `"${meta.title}" 파이프라인에 적용 →`;
 };
 
 /** 에이전시 유형 선택 카드 렌더링 */
@@ -665,4 +680,15 @@ const initGlobalTooltip = () => {
 document.addEventListener('DOMContentLoaded', () => {
   init();
   initGlobalTooltip();
+
+  /* 파이프라인 적용 버튼 — Store에 pendingRun 신호 저장 후 index.html 이동 */
+  document.getElementById('apply-agency-btn')?.addEventListener('click', () => {
+    const meta = AGENCY_META[AGENTS_FILE] || AGENCY_META['agents.json'];
+    Store.set({
+      pendingNewRun:    true,
+      pendingRunAgents: agentsData,      // 현재 에이전트 배열 스냅샷
+      pendingRunLabel:  meta.title,      // 탭 라벨용 (예: '마케팅회사')
+    });
+    window.location.href = '../index.html';
+  });
 });

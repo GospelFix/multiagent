@@ -40,6 +40,90 @@
   text-decoration: underline;
 }
 
+/* ─── 에이전시 유형 선택기 ─── */
+.agency-selector-wrap {
+  margin-bottom: 24px;
+}
+
+.agency-selector-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 10px;
+}
+
+.agency-select-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-mid);
+  position: relative;
+}
+
+.agency-select-card:hover {
+  border-color: var(--agency-color, var(--border-bright));
+  background: var(--agency-glow, var(--surface2));
+}
+
+.agency-select-card.active {
+  box-shadow: 0 0 0 1px var(--agency-color, var(--border-bright));
+}
+
+.agency-card-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.agency-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.agency-card-label {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agency-card-desc {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agency-card-check {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--agency-color, var(--text-dim));
+}
+
+/* ─── 에이전트 목록 레이아웃 진입 애니메이션 ─── */
+#agents-layout {
+  animation: slideIn 0.3s ease both;
+}
+
 /* ─── 에이전트 목록 페이지 레이아웃 ─── */
 .agents-layout {
   display: grid;
@@ -501,6 +585,32 @@
   text-transform: none;
   letter-spacing: 0;
   vertical-align: middle;
+}
+
+/* ─── 파이프라인 적용 버튼 ─── */
+#apply-agency-wrap {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 0 16px;
+}
+
+.apply-agency-btn {
+  padding: 12px 24px;
+  background: var(--accent-pm);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  min-height: 44px;
+}
+
+.apply-agency-btn:hover {
+  opacity: 0.85;
+  transform: translateX(2px);
 }
 
 /* ─── 저장 버튼 ─── */

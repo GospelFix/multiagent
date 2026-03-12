@@ -420,6 +420,7 @@ const savePipeline = () => {
     agentData:        step.agentData,  // 전체 에이전트 데이터 임베드 (pipeline.js에서 직접 사용)
   }));
 
+  /* 커스텀 에이전트 저장 */
   Store.set({
     customPipeline: {
       id:    `cp-${Date.now()}`,
@@ -427,6 +428,30 @@ const savePipeline = () => {
       steps,
     },
   });
+
+  /* pendingRun 신호 저장 → index.html에서 탭 자동 생성 */
+  const pendingAgents = currentSteps
+    .map(step => {
+      const base = step.agentData;
+      if (!base) return null;
+      return {
+        ...base,
+        outputFile: step.outputFile || base.outputFile,
+        ...(step.model && { model: step.model }),
+        ...(step.rank  && { rank: step.rank }),
+      };
+    })
+    .filter(Boolean);
+
+  if (pendingAgents.length > 0) {
+    Store.set({
+      pendingNewRun:    true,
+      pendingRunAgents: pendingAgents,
+      pendingRunLabel:  name,
+    });
+    window.location.href = '../index.html';
+    return;
+  }
 
   showToast('✅ 커스텀 에이전트이 저장되었습니다!');
 };

@@ -94,6 +94,9 @@ const SAMPLE_DATA = {
   },
 };
 
+/* ─── 스텝 팔레트 — 인덱스 기반 색상 배열 ─── */
+const STEP_PALETTE = ['#f59e0b', '#22c55e', '#8b5cf6', '#ef4444', '#3b82f6', '#f97316'];
+
 /* ─── 직급 value → label/icon 변환 맵 ─── */
 const RANK_MAP = {
   intern:    { label: '인턴',     icon: '🔰' },
@@ -202,6 +205,17 @@ const init = async () => {
     if (stored.generatedRuns?.length)    historyData = [...stored.generatedRuns,    ...historyData];
     if (stored.generatedOutputs?.length) outputsData = [...stored.generatedOutputs, ...outputsData];
 
+    /* agents.html에서 에이전시 선택 후 적용 버튼 클릭 시 pendingRun 감지 */
+    const pendingState = Store.get();
+    if (pendingState.pendingNewRun && pendingState.pendingRunAgents?.length > 0) {
+      agentsData = pendingState.pendingRunAgents;           // 선택된 에이전시 에이전트로 교체
+      createPendingRunTab(pendingState.pendingRunLabel);
+      Store.set({ pendingNewRun: false, pendingRunAgents: null, pendingRunLabel: null });
+    } else if (historyData[currentRunIndex]?.agentsSnapshot?.length > 0) {
+      /* 재방문 시: 현재 탭의 agentsSnapshot으로 agentsData 복원 */
+      agentsData = historyData[currentRunIndex].agentsSnapshot;
+    }
+
     renderAll();
   } catch (e) {
     console.error('데이터 로드 실패:', e);
@@ -215,160 +229,37 @@ const fetchJSON = async (url) => {
   return res.json();
 };
 
+/** 에이전시 선택 후 대기 상태의 run 탭 생성 */
+const createPendingRunTab = (label) => {
+  const runLabel = label
+    ? `${label} (${historyData.length + 1}차)`
+    : `${historyData.length + 1}차 실행`;
+
+  const newRun = {
+    id:             `run-${Date.now()}`,
+    label:          runLabel,
+    status:         'pending',
+    agentsSnapshot: JSON.parse(JSON.stringify(agentsData)), // 탭 전환 시 복원용
+    createdAt:      new Date().toISOString(),
+    completedAt:    null,
+    totalTokens:    0,
+    completedSteps: 0,
+    totalSteps:     agentsData.length,
+    results:        agentsData.map(agent => ({
+      agentId:  agent.id,
+      status:   'pending',
+      duration: null,
+      tokens:   null,
+      outputId: null,
+    })),
+  };
+  historyData.unshift(newRun);
+  currentRunIndex = 0;
+};
+
 /** 전체 렌더링 */
 const renderAll = () => {
-  renderPipelineSteps();
-  renderAgentCards();
   renderRunPanel();
-};
-
-/* ─── 파이프라인 스텝 렌더링 ─── */
-const renderPipelineSteps = () => {
-  const container = document.getElementById('agent-steps');
-  if (!container) return;
-
-  const state = Store.get();
-  const currentRun = historyData[currentRunIndex];
-  const results = currentRun ? currentRun.results : [];
-
-  /* 각 에이전트 상태 계산 */
-  const stepsHTML = agentsData.map((agent, idx) => {
-    const result = results.find(r => r.agentId === agent.id);
-    const status = result ? result.status : 'pending';
-    const isLast = idx === agentsData.length - 1;
-
-    return buildStepHTML(agent, status, result, isLast, state);
-  }).join('');
-
-  container.innerHTML = stepsHTML;
-
-  /* 스텝 버튼 이벤트 바인딩 */
-  container.querySelectorAll('.tag-run[data-agent]').forEach(btn => {
-    btn.addEventListener('click', () => simulateRun(btn.dataset.agent));
-  });
-
-  container.querySelectorAll('.tag-edit[data-agent]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      window.location.href = `${PAGES_ROOT}prompts.html?agent=${btn.dataset.agent}`;
-    });
-  });
-};
-
-/** 단일 스텝 HTML 빌드 */
-const buildStepHTML = (agent, status, result, isLast, state) => {
-  const accentColor = `var(${agent.accentVar})`;
-  const glowColor = `var(${agent.glowVar})`;
-
-  /* 오버라이드 값 읽기 (모델 + 직급) */
-  const override = state.agentOverrides[agent.id];
-  const modelName = (override && override.model) ? override.model : agent.model;
-
-  /* 직급: 오버라이드 우선, 없으면 JSON 원본 사용 */
-  const rankData = (override && override.rank && RANK_MAP[override.rank])
-    ? RANK_MAP[override.rank]
-    : { label: agent.rank, icon: agent.rankIcon };
-
-  /* 상태에 따른 노드 스타일 */
-  const nodeStyle = status === 'pending'
-    ? `background:${glowColor}; border-color:var(--border); opacity:0.5;`
-    : `background:${glowColor}; border-color:${accentColor};`;
-
-  /* 상태 텍스트 */
-  let statusHTML = '';
-  if (status === 'done') {
-    statusHTML = `<span class="step-status-text status-done-text">✓ 완료</span>`;
-  } else if (status === 'running') {
-    statusHTML = `
-      <div class="running-indicator" aria-label="실행 중">
-        <div class="running-dot"></div>
-        <div class="running-dot"></div>
-        <div class="running-dot"></div>
-      </div>
-    `;
-  } else {
-    statusHTML = `<span class="step-status-text status-pending-text">대기중</span>`;
-  }
-
-  const connectorLine = isLast ? '' : `<div class="step-line${status === 'done' ? ' active' : ''}"></div>`;
-
-  return `
-    <div class="agent-step" data-agent="${agent.id}" data-status="${status}">
-      <div class="step-connector">
-        <div class="step-node" style="${nodeStyle}" aria-label="${agent.name} 에이전트">${agent.icon}</div>
-        ${connectorLine}
-      </div>
-      <div class="step-content${status === 'pending' ? ' pending' : ''}">
-        <div class="step-header">
-          <div class="step-role">
-            <span style="color:${accentColor}">${agent.name}</span>
-            <span class="rank-badge" style="background:${glowColor};color:${accentColor};border:1px solid ${glowColor.replace('0.15', '0.3')}">${rankData.icon} ${rankData.label}</span>
-            <span class="step-model">${modelName}</span>
-          </div>
-          <div class="step-actions">
-            <span class="step-tag tag-run" data-agent="${agent.id}" role="button" aria-label="${agent.name} 단독 실행">실행</span>
-            <span class="step-tag tag-edit" data-agent="${agent.id}" role="button" aria-label="${agent.name} 프롬프트 편집">편집</span>
-          </div>
-        </div>
-        <div class="step-output">
-          <span class="output-arrow">→</span>
-          <div class="output-file">📄 ${agent.outputFile}</div>
-          ${statusHTML}
-        </div>
-      </div>
-    </div>
-  `;
-};
-
-/* ─── 에이전트 카드 그리드 렌더링 ─── */
-const renderAgentCards = () => {
-  const container = document.getElementById('agent-cards-grid');
-  if (!container) return;
-
-  const state = Store.get();
-
-  const cardsHTML = agentsData.map(agent => {
-    const override = state.agentOverrides[agent.id];
-    const modelName = (override && override.model) ? override.model : agent.model;
-    const multiplier = (override && override.tokenMultiplier != null) ? override.tokenMultiplier : agent.tokenMultiplier;
-    const tokenText = multiplier !== null ? `×${multiplier} 토큰` : '미설정';
-
-    /* 직급 오버라이드 반영 */
-    const rankData = (override && override.rank && RANK_MAP[override.rank])
-      ? RANK_MAP[override.rank]
-      : { label: agent.rank, icon: agent.rankIcon };
-
-    return `
-      <div class="agent-card ${agent.colorClass}" role="button" tabindex="0"
-           aria-label="${agent.name} 에이전트 설정" data-agent="${agent.id}">
-        <div class="agent-card-header">
-          <div class="agent-icon" style="background:var(${agent.glowVar})">${agent.icon}</div>
-          <div>
-            <div class="agent-name">
-              ${agent.name}
-              <span class="rank-badge" style="background:var(${agent.glowVar});color:var(${agent.accentVar})">${rankData.icon} ${rankData.label}</span>
-            </div>
-            <div class="agent-desc">${agent.desc}</div>
-          </div>
-        </div>
-        <div class="agent-meta">
-          <span class="agent-model-tag">${modelName}</span>
-          <span class="agent-token">${tokenText}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  container.innerHTML = cardsHTML;
-
-  /* 카드 클릭 → 에이전트 설정 페이지 이동 */
-  container.querySelectorAll('.agent-card').forEach(card => {
-    card.addEventListener('click', () => {
-      window.location.href = `${PAGES_ROOT}agents.html?agents=${AGENTS_FILE}&agent=${card.dataset.agent}`;
-    });
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') card.click();
-    });
-  });
 };
 
 /* ─── 우측 실행 패널 렌더링 ─── */
@@ -376,7 +267,6 @@ const renderRunPanel = () => {
   renderRunTabs();
   renderResultList();
   renderTokenBars();
-  renderOutputPreview();
 };
 
 /** 실행 탭 렌더링 */
@@ -390,71 +280,90 @@ const renderRunTabs = () => {
     </div>
   `).join('');
 
-  container.innerHTML = tabsHTML + `<div class="run-tab" id="new-run-tab">+ 새 실행</div>`;
+  container.innerHTML = tabsHTML;
 
   container.querySelectorAll('.run-tab[data-run-index]').forEach(tab => {
     tab.addEventListener('click', () => {
       currentRunIndex = parseInt(tab.dataset.runIndex, 10);
+      /* 해당 탭의 에이전트 스냅샷이 있으면 agentsData 복원 */
+      const run = historyData[currentRunIndex];
+      if (run?.agentsSnapshot?.length > 0) agentsData = run.agentsSnapshot;
       renderRunPanel();
-      renderPipelineSteps();
     });
   });
 
-  document.getElementById('new-run-tab')?.addEventListener('click', startNewRun);
+  /* 활성 탭을 컨테이너 중앙으로 스크롤 */
+  const activeTab = container.querySelector('.run-tab.active');
+  if (activeTab) {
+    const tabCenter   = activeTab.offsetLeft + activeTab.offsetWidth / 2;
+    const scrollLeft  = tabCenter - container.clientWidth / 2;
+    container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+  }
 };
 
-/** 결과 리스트 렌더링 */
+/** 결과 리스트 렌더링 (rr-card 카드형) */
 const renderResultList = () => {
   const container = document.getElementById('run-result-list');
   if (!container) return;
 
   const currentRun = historyData[currentRunIndex];
   if (!currentRun) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:11px;padding:20px">실행 데이터 없음</div>';
+    container.innerHTML = `
+      <div class="result-empty-state">
+        <div class="result-empty-icon">▶</div>
+        <div class="result-empty-title">아직 실행 결과가 없습니다</div>
+        <div class="result-empty-desc">에이전시 페이지로 이동해서<br>본인에 맞는 <strong>에이전시 팀을 구성</strong>하세요</div>
+        <a href="${PAGES_ROOT}agents.html" class="result-empty-link">에이전트 설정 →</a>
+      </div>
+    `;
     return;
   }
 
-  const listHTML = currentRun.results.map(result => {
+  const listHTML = currentRun.results.map((result, idx) => {
     const agent = agentsData.find(a => a.id === result.agentId);
     if (!agent) return '';
 
-    const statusIcon = result.status === 'done'
-      ? '<div class="result-status status-done">✓</div>'
-      : result.status === 'running'
-        ? `<div class="result-status status-running"><div class="running-indicator"><div class="running-dot" style="width:3px;height:3px"></div></div></div>`
-        : '<div class="result-status status-pending">–</div>';
+    const color = STEP_PALETTE[idx % STEP_PALETTE.length];
 
+    /* 상태별 체크 아이콘 */
+    let checkHTML = '';
+    if (result.status === 'done') {
+      checkHTML = `<div class="rr-check done">✓</div>`;
+    } else if (result.status === 'running') {
+      checkHTML = `<div class="rr-check running"><div class="es-dot"></div></div>`;
+    } else {
+      checkHTML = `<div class="rr-check pending">–</div>`;
+    }
+
+    /* 소요 시간 */
     const timeText = result.status === 'done'
       ? `${result.duration}s`
       : result.status === 'running'
         ? `<span style="color:var(--accent-pipe)">...</span>`
         : '—';
 
+    /* 직급 라벨 */
+    const state = Store.get();
+    const rankLabel = getAgentRankLabel(agent, state);
+
     return `
-      <div class="result-item ${result.status}" data-output-id="${result.outputId}" data-agent-id="${result.agentId}" role="button" tabindex="0"
-           aria-label="${agent.name} 결과 보기">
-        ${statusIcon}
-        <div class="result-info">
-          <div class="result-agent">
-            <span style="color:var(${agent.accentVar})">${agent.icon} ${agent.name}</span>
-            <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted)">${agent.rank}</span>
+      <div class="rr-card ${result.status}" data-output-id="${result.outputId}" data-agent-id="${result.agentId}"
+           role="button" tabindex="0" aria-label="${agent.name} 결과 보기">
+        <div class="rr-left">${checkHTML}</div>
+        <div class="rr-body">
+          <div class="rr-top">
+            <span class="rr-icon">${agent.icon}</span>
+            <span class="rr-name" style="color:${color}">${agent.name.toUpperCase()}</span>
+            <span class="rr-role">${rankLabel}</span>
           </div>
-          <div class="result-file">→ 📄 ${agent.outputFile}</div>
+          <div class="rr-file">→ 📄 ${agent.outputFile}</div>
         </div>
-        <div class="result-time">${timeText}</div>
+        <div class="rr-time">${timeText}</div>
       </div>
     `;
   }).join('');
 
   container.innerHTML = listHTML;
-
-  /* 클릭 시 미리보기 전환 (agentId도 함께 전달 → resolved prompt 표시용) */
-  container.querySelectorAll('.result-item[data-output-id]').forEach(item => {
-    item.addEventListener('click', () => renderOutputPreview(item.dataset.outputId, item.dataset.agentId));
-    item.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') renderOutputPreview(item.dataset.outputId, item.dataset.agentId);
-    });
-  });
 
   /* 상태 표시 업데이트 */
   updateRunStatus(currentRun.status);
@@ -490,23 +399,37 @@ const renderTokenBars = () => {
   if (!container) return;
 
   const currentRun = historyData[currentRunIndex];
-  if (!currentRun) return;
+  if (!currentRun) {
+    /* 에이전트 이름만 있는 빈 바 표시 */
+    container.innerHTML = agentsData.map((agent, idx) => {
+      const color = STEP_PALETTE[idx % STEP_PALETTE.length];
+      return `
+        <div class="token-row">
+          <div class="token-label" style="color:${color};font-family:var(--font-mono);text-transform:uppercase;font-size:10px;">${agent.name}</div>
+          <div class="token-bar"><div class="token-fill" style="width:0%;background:${color}"></div></div>
+          <div class="token-val" style="color:var(--text-dim)">—</div>
+        </div>
+      `;
+    }).join('');
+    return;
+  }
 
   /* 전체 최대값 기준으로 % 계산 */
   const maxTokens = Math.max(...currentRun.results.map(r => r.tokens || 0), 1);
 
-  const barsHTML = currentRun.results.map(result => {
+  const barsHTML = currentRun.results.map((result, idx) => {
     const agent = agentsData.find(a => a.id === result.agentId);
     if (!agent) return '';
 
+    const color = STEP_PALETTE[idx % STEP_PALETTE.length];
     const pct = result.tokens ? Math.round((result.tokens / maxTokens) * 100) : 0;
     const valText = result.tokens ? result.tokens.toLocaleString() : '—';
 
     return `
       <div class="token-row">
-        <div class="token-label" style="color:var(${agent.accentVar})">${agent.name}</div>
+        <div class="token-label" style="color:${color};font-family:var(--font-mono);text-transform:uppercase;font-size:10px;">${agent.name}</div>
         <div class="token-bar">
-          <div class="token-fill" data-width="${pct}" style="width:0%;background:var(${agent.accentVar})"></div>
+          <div class="token-fill" data-width="${pct}" style="width:0%;background:${color}"></div>
         </div>
         <div class="token-val">${valText}</div>
       </div>
@@ -738,22 +661,244 @@ const buildTemplateOutput = (agent, userInput, brandInfo, collectedOutputs) => {
   }
 };
 
+/** 단일 스텝 HTML 빌드 — exec bar 단계 패널에서 사용 */
+const buildStepHTML = (agent, status, result, isLast, state, idx) => {
+  const color = STEP_PALETTE[idx % STEP_PALETTE.length];
+
+  const override = state.agentOverrides[agent.id];
+  const modelName = (override && override.model) ? override.model : agent.model;
+
+  const rankData = (override && override.rank && RANK_MAP[override.rank])
+    ? RANK_MAP[override.rank]
+    : { label: agent.rank, icon: agent.rankIcon };
+
+  const circleClass = status === 'running' ? 'es-circle es-running' : 'es-circle';
+  const circleStyle = `border-color:${color};background:${color}15;--es-color:${color}50`;
+  const connector = isLast ? '' : `<div class="es-connector"></div>`;
+
+  let actionsHTML = '';
+  if (status === 'running') {
+    actionsHTML = `<span class="es-status st-running"><div class="es-dot"></div> 실행 중</span>`;
+  } else if (status === 'done') {
+    actionsHTML = `<span class="es-status st-done">✓ 완료</span>`;
+  } else {
+    actionsHTML = `
+      <span class="step-tag tag-run" data-agent="${agent.id}" role="button" aria-label="${agent.name} 단독 실행">실행</span>
+      <span class="step-tag tag-edit" data-agent="${agent.id}" role="button" aria-label="${agent.name} 프롬프트 편집">편집</span>
+    `;
+  }
+
+  const fileStatusClass = status === 'done' ? 'st-done' : status === 'running' ? 'st-running' : 'st-pending';
+  const fileStatusText  = status === 'done' ? '완료' : status === 'running' ? '생성 중...' : '대기';
+  const itemClass = status === 'pending' ? 'es-item es-pending' : status === 'running' ? 'es-item es-running' : 'es-item es-done';
+
+  return `
+    <div class="${itemClass}" data-agent="${agent.id}" data-status="${status}">
+      <div class="es-left">
+        <div class="${circleClass}" style="${circleStyle}" aria-label="${agent.name} 에이전트">${agent.icon}</div>
+        ${connector}
+      </div>
+      <div class="es-body">
+        <div class="es-main">
+          <div class="es-info">
+            <span class="es-name" style="color:${color}">${agent.name.toUpperCase()}</span>
+            <span class="es-badge" style="color:${color};border-color:${color}35;background:${color}12">${rankData.icon} ${rankData.label}</span>
+            <span class="es-model">${modelName}</span>
+          </div>
+          <div class="es-actions">${actionsHTML}</div>
+        </div>
+        <div class="es-output">
+          <span class="es-output-arrow">→</span>
+          <span class="es-filename">📄 ${agent.outputFile}</span>
+          <span class="es-file-status ${fileStatusClass}">${fileStatusText}</span>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+/* ─── 하단 실행 바 ─── */
+
+/** 실행 바 DOM 초기화 (body에 단 한 번 생성) */
+const initExecBar = () => {
+  if (document.getElementById('exec-bar')) return;
+
+  const bar = document.createElement('div');
+  bar.id = 'exec-bar';
+  bar.className = 'exec-bar';
+  bar.style.display = 'none';
+  bar.innerHTML = `
+    <div class="exec-bar-header">
+      <span class="exec-bar-label" id="exec-bar-label">파이프라인 실행</span>
+      <div class="exec-bar-items" id="exec-bar-items"></div>
+      <button class="exec-bar-toggle" id="exec-bar-toggle" title="단계 패널 접기/펼치기">▼</button>
+      <button class="exec-chip-close" id="exec-bar-close" title="닫기">×</button>
+    </div>
+    <div class="exec-detail-panel" id="exec-detail-panel">
+      <div class="exec-detail-header">
+        <span class="exec-detail-label">단계별 실행 현황</span>
+        <button class="exec-detail-close" id="exec-detail-close">×</button>
+      </div>
+      <div class="exec-steps-list" id="exec-steps-list"></div>
+    </div>
+  `;
+  document.body.appendChild(bar);
+
+  /* 패널 토글 */
+  document.getElementById('exec-bar-toggle').addEventListener('click', toggleExecPanel);
+  document.getElementById('exec-detail-close').addEventListener('click', toggleExecPanel);
+
+  /* 바 닫기 */
+  document.getElementById('exec-bar-close').addEventListener('click', hideExecBar);
+};
+
+/** 실행 바 패널 열기/닫기 토글 */
+const toggleExecPanel = () => {
+  const panel  = document.getElementById('exec-detail-panel');
+  const toggle = document.getElementById('exec-bar-toggle');
+  if (!panel || !toggle) return;
+  const isClosed = panel.classList.toggle('closed');
+  toggle.textContent = isClosed ? '▲' : '▼';
+  /* 트랜지션(0.3s) 후 패딩 재계산 */
+  setTimeout(adjustMainPadding, 320);
+};
+
+/** 실행 바 표시 + main 하단 패딩 확보 */
+const showExecBar = () => {
+  initExecBar();
+  const bar = document.getElementById('exec-bar');
+  if (!bar) return;
+  bar.style.display = 'flex';
+  document.body.classList.add('exec-bar-visible');
+  /* 패널 기본 열린 상태 */
+  const panel  = document.getElementById('exec-detail-panel');
+  const toggle = document.getElementById('exec-bar-toggle');
+  if (panel)  panel.classList.remove('closed');
+  if (toggle) toggle.textContent = '▼';
+  requestAnimationFrame(adjustMainPadding);
+};
+
+/** 실행 바 숨김 */
+const hideExecBar = () => {
+  const bar  = document.getElementById('exec-bar');
+  const main = document.querySelector('.main');
+  if (bar)  bar.style.display = 'none';
+  if (main) main.style.paddingBottom = '';
+  document.body.classList.remove('exec-bar-visible');
+};
+
+/** main 콘텐츠 하단 패딩 = 실행 바 높이 */
+const adjustMainPadding = () => {
+  const bar  = document.getElementById('exec-bar');
+  const main = document.querySelector('.main');
+  if (!bar || !main || bar.style.display === 'none') return;
+  main.style.paddingBottom = `${bar.offsetHeight + 16}px`;
+};
+
+/** 칩 행 전체 렌더링 */
+const renderExecChips = (startIdx) => {
+  const container = document.getElementById('exec-bar-items');
+  if (!container) return;
+
+  container.innerHTML = agentsData.map((agent, idx) => {
+    const color  = STEP_PALETTE[idx % STEP_PALETTE.length];
+    const isDone = idx < startIdx;
+    return `
+      <div class="exec-chip${isDone ? ' active' : ''}" id="exec-chip-${agent.id}">
+        <div class="exec-chip-icon" style="background:${color}15;color:${color}">${agent.icon}</div>
+        <div class="exec-chip-info">
+          <div class="exec-chip-name">${agent.name}</div>
+          <div class="exec-chip-progress" id="exec-chip-prog-${agent.id}">${isDone ? '완료됨' : '대기 중'}</div>
+        </div>
+        <span class="exec-chip-badge ${isDone ? 'done' : 'waiting'}" id="exec-chip-badge-${agent.id}">${isDone ? '완료' : '대기'}</span>
+      </div>
+    `;
+  }).join('');
+};
+
+/** 단계 상세 패널 전체 렌더링 */
+const renderExecSteps = (startIdx) => {
+  const container = document.getElementById('exec-steps-list');
+  if (!container) return;
+
+  const state = Store.get();
+  container.innerHTML = agentsData.map((agent, idx) => {
+    const status = idx < startIdx ? 'done' : 'pending';
+    const isLast = idx === agentsData.length - 1;
+    return buildStepHTML(agent, status, null, isLast, state, idx);
+  }).join('');
+};
+
+/** 특정 스텝의 칩·패널 업데이트 */
+const updateExecStep = (agentId, status, idx, duration) => {
+  /* 칩 상태 업데이트 */
+  const chip  = document.getElementById(`exec-chip-${agentId}`);
+  const badge = document.getElementById(`exec-chip-badge-${agentId}`);
+  const prog  = document.getElementById(`exec-chip-prog-${agentId}`);
+
+  if (chip) {
+    chip.classList.toggle('active', status === 'running');
+    /* 실행 중 칩 좌우 스크롤 */
+    if (status === 'running') chip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+  if (badge) {
+    const cls = status === 'running' ? 'running' : status === 'done' ? 'done' : 'waiting';
+    badge.className = `exec-chip-badge ${cls}`;
+    badge.textContent = status === 'running' ? '실행 중' : status === 'done' ? '완료' : '대기';
+  }
+  if (prog) {
+    prog.textContent = status === 'running'
+      ? '처리 중...'
+      : status === 'done' ? (duration ? `${duration}s 완료` : '완료됨') : '대기 중';
+  }
+
+  /* 단계 패널 해당 항목 교체 */
+  const stepsContainer = document.getElementById('exec-steps-list');
+  if (stepsContainer) {
+    const agent = agentsData.find(a => a.id === agentId);
+    if (agent) {
+      const isLast  = idx === agentsData.length - 1;
+      const newHTML = buildStepHTML(agent, status, null, isLast, Store.get(), idx);
+      const existing = stepsContainer.querySelector(`[data-agent="${agentId}"]`);
+      if (existing) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = newHTML;
+        existing.replaceWith(tmp.firstElementChild);
+      }
+    }
+  }
+
+  /* 바 레이블 업데이트 */
+  const label = document.getElementById('exec-bar-label');
+  if (label && status === 'running') {
+    label.textContent = `실행 중 · ${idx + 1} / ${agentsData.length} 단계`;
+  }
+
+  adjustMainPadding();
+};
+
 /* ─── 파이프라인 실행 ─── */
 const simulateRun = async (startAgentId) => {
   if (isRunning) return;
   isRunning = true;
 
-  const runBtn     = document.getElementById('run-btn-header');
-  const runBtnCard = document.getElementById('run-btn-card');
-  if (runBtn)     { runBtn.disabled = true;     runBtn.textContent = '⏳ 실행 중...'; }
-  if (runBtnCard) { runBtnCard.disabled = true; runBtnCard.innerHTML = '<span>⏳</span> 실행 중...'; }
+  /* 현재 탭이 pending 상태이면 라벨을 상속하고 제거 (실제 런으로 교체) */
+  let inheritLabel = null;
+  if (historyData[currentRunIndex]?.status === 'pending') {
+    inheritLabel = historyData[currentRunIndex].label;
+    historyData.splice(currentRunIndex, 1);
+  }
+
+  const runBtn = document.getElementById('run-btn-header');
+  if (runBtn) { runBtn.disabled = true; runBtn.textContent = '⏳ 실행 중...'; }
 
   const startIdx = startAgentId ? agentsData.findIndex(a => a.id === startAgentId) : 0;
 
   const newRun = {
     id: `run-${Date.now()}`,
-    label: `${historyData.length + 1}차 실행`,
+    label: inheritLabel || `${historyData.length + 1}차 실행`,
     status: 'running',
+    agentsSnapshot: JSON.parse(JSON.stringify(agentsData)), // 페이지 재방문 시 에이전트 복원용
     createdAt: new Date().toISOString(),
     completedAt: null,
     totalTokens: 0,
@@ -771,7 +916,12 @@ const simulateRun = async (startAgentId) => {
   historyData.unshift(newRun);
   currentRunIndex = 0;
   renderRunPanel();
-  renderPipelineSteps();
+
+  /* 하단 실행 바 표시 */
+  showExecBar();
+  renderExecChips(startIdx);
+  renderExecSteps(startIdx);
+  requestAnimationFrame(adjustMainPadding);
 
   /* 크레딧 사전 체크 (API 키 없을 때만) */
   const preState  = Store.get();
@@ -785,6 +935,7 @@ const simulateRun = async (startAgentId) => {
     if (preState.tokenBalance < requiredCredits) {
       alert(`크레딧이 부족합니다.\n필요: ${requiredCredits} 크레딧 / 잔여: ${preState.tokenBalance} 크레딧`);
       isRunning = false;
+      hideExecBar();
       if (runBtn)     { runBtn.disabled = false;     runBtn.textContent = '▶ 전체 실행'; }
       if (runBtnCard) { runBtnCard.disabled = false; runBtnCard.innerHTML = '<span>▶</span> 실행 중'; }
       return;
@@ -814,7 +965,7 @@ const simulateRun = async (startAgentId) => {
     newRun.results[i].resolvedPrompt = resolvedPrompt;
     Store.set({ activeRunStep: agent.id, pipelineStatus: 'running' });
     renderRunPanel();
-    renderPipelineSteps();
+    updateExecStep(agent.id, 'running', i);
 
     let generatedContent = '';
     let tokens = 0;
@@ -891,12 +1042,19 @@ const simulateRun = async (startAgentId) => {
     updateTokenDisplay();
 
     renderRunPanel();
-    renderPipelineSteps();
+    updateExecStep(agent.id, 'done', i, duration);
   }
 
   newRun.status      = 'completed';
   newRun.completedAt = new Date().toISOString();
   Store.set({ activeRunStep: null, pipelineStatus: 'completed' });
+
+  /* 실행 바 완료 상태 표시 */
+  const execLabel = document.getElementById('exec-bar-label');
+  if (execLabel) {
+    execLabel.textContent = `✓ 파이프라인 완료 · ${agentsData.length}단계`;
+    execLabel.style.color = '#4ade80';
+  }
 
   /* 생성 결과물 localStorage 영속 저장 */
   const st = Store.get();
@@ -906,11 +1064,9 @@ const simulateRun = async (startAgentId) => {
   });
 
   renderRunPanel();
-  renderPipelineSteps();
 
   isRunning = false;
-  if (runBtn)     { runBtn.disabled = false;     runBtn.textContent = '▶ 전체 실행'; }
-  if (runBtnCard) { runBtnCard.disabled = false; runBtnCard.innerHTML = '<span>▶</span> 실행 중'; }
+  if (runBtn) { runBtn.disabled = false; runBtn.textContent = '▶ 전체 실행'; }
 };
 
 /** 새 실행 시작 */
@@ -970,7 +1126,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* 전체 실행 버튼 이벤트 */
   document.getElementById('run-btn-header')?.addEventListener('click', () => simulateRun());
-  document.getElementById('run-btn-card')?.addEventListener('click', () => simulateRun());
 
   /* 프로젝트 요청 입력 → Store 저장 ({{user_input}} 변수 소스) */
   const userInputArea = document.getElementById('user-input-area');
@@ -1016,26 +1171,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (el) el.value = SAMPLE_DATA.brandInfo[key] || '';
     });
 
-    /* 클라이언트 정보 카드 자동 펼치기 */
-    const body = document.getElementById('brand-info-body');
-    const toggle = document.getElementById('brand-info-toggle');
-    if (body && body.style.display === 'none') {
-      body.style.display = 'block';
-      if (toggle) { toggle.textContent = '접기 ▴'; toggle.setAttribute('aria-expanded', 'true'); }
-    }
   });
 
-  /* 브랜드 가이드라인 카드 펼치기/접기 토글 */
-  const toggleBtn = document.getElementById('brand-info-toggle');
-  const brandBody = document.getElementById('brand-info-body');
-  if (toggleBtn && brandBody) {
-    toggleBtn.addEventListener('click', () => {
-      const isOpen = brandBody.style.display !== 'none';
-      brandBody.style.display = isOpen ? 'none' : 'block';
-      toggleBtn.textContent = isOpen ? '펼치기 ▾' : '접기 ▴';
-      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
-    });
-  }
 
   /* 전역 툴팁 오버레이 초기화 (agents.js와 동일 패턴, 중복 방지) */
   if (!document.getElementById('tt-overlay')) {

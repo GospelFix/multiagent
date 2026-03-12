@@ -390,6 +390,41 @@ body::before {
   opacity: 0.85;
 }
 
+/* ─── 전체 실행 버튼 — 쉬머 스타일 ─── */
+#run-btn-header {
+  position: relative;
+  background: linear-gradient(90deg, #4b5563 0%, #e2e8f0 40%, #ffffff 55%, #e2e8f0 70%, #4b5563 100%);
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: run-btn-shimmer 2.8s linear infinite;
+  color: transparent;
+}
+
+#run-btn-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #111213;
+  border-radius: var(--radius-sm);
+  z-index: -1;
+}
+
+#run-btn-header:hover { opacity: 0.75; }
+
+#run-btn-header:disabled {
+  animation: none;
+  -webkit-text-fill-color: #6b7280;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes run-btn-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -50% center; }
+}
+
 .btn-sm {
   padding: 5px 12px;
   font-size: 11px;
