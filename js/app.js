@@ -25,6 +25,12 @@ const NAV_ITEMS = [
       { label: '아웃풋',   href: `${ROOT}pages/output.html`,  dot: 'var(--border)' },
     ],
   },
+  {
+    section: '설정',
+    items: [
+      { label: '설정', href: `${ROOT}pages/settings.html`, dot: 'var(--border)' },
+    ],
+  },
 ];
 
 /** 사이드바 HTML 동적 생성 및 마운트 */

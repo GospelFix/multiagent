@@ -1,0 +1,1213 @@
+/* ========================================
+   Settings CSS — 설정 페이지 전용
+   탭 네비게이션, 설정 카드 레이아웃
+   ======================================== */
+
+/* ─── 설정 탭 네비게이션 ─── */
+.settings-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+
+.settings-tab {
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.settings-tab:hover {
+  color: var(--text);
+}
+
+.settings-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent-pipe);
+}
+
+/* ─── 설정 카드 ─── */
+.settings-card {
+  max-width: 600px;
+}
+
+/* ─── 설정 탭 패널 ─── */
+.settings-panel {
+  display: none;
+}
+
+.settings-panel.active {
+  display: block;
+}
+
+/* ─── API 키 관련 (pipeline.css에서 복사) ─── */
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ─── 툴팁 ─── */
+.tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltip-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.tooltip-icon:hover,
+.tooltip-icon:focus {
+  border-color: var(--border-bright);
+  color: var(--text);
+  outline: none;
+}
+
+.tooltip-popup {
+  display: none;
+}
+
+#tt-overlay {
+  position: fixed;
+  width: 260px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+  z-index: 9999;
+  pointer-events: auto;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.1s ease, visibility 0.1s ease;
+}
+
+#tt-overlay.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ─── Provider 선택 탭 ─── */
+.provider-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.provider-tab {
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.provider-tab.active {
+  background: var(--surface-raised);
+  border-color: var(--border-bright);
+  color: var(--text);
+}
+
+.provider-tab:hover:not(.active) {
+  border-color: var(--border-bright);
+  color: var(--text);
+}
+
+/* ─── API 키 입력 행 ─── */
+.api-key-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.api-key-input {
+  flex: 1;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+/* ─── API 키 연결 상태 배지 ─── */
+.api-key-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.api-key-status.connected {
+  color: var(--accent-dev);
+}
+
+.api-key-status.disconnected {
+  color: var(--text-dim);
+}
+
+/* ─── 발급 링크 행 ─── */
+.api-key-link-row {
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.api-key-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.api-key-link:hover {
+  color: var(--accent-mkt);
+  text-decoration: underline;
+}
+
+.api-key-link.provider-claude:hover {
+  color: #d97706;
+}
+
+.api-key-link.provider-openai:hover {
+  color: #10b981;
+}
+
+/* ─── brand-input (API 텍스트 입력용) ─── */
+.brand-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  padding: 7px 10px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast);
+}
+
+.brand-input:focus {
+  outline: none;
+  border-color: var(--border-bright);
+}
+
+/* ─── 내 에이전트 탭 — 패널 헤더 ─── */
+.my-agents-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 12px;
+}
+
+.my-agents-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+
+.my-agents-subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.my-agents-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ─── 파이프라인 카드 그리드 ─── */
+.my-agents-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 1200px) {
+  .my-agents-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 860px) {
+  .my-agents-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .my-agents-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── 파이프라인 카드 ─── */
+.ap-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color var(--transition-fast);
+}
+
+.ap-card:hover {
+  border-color: var(--border-bright);
+}
+
+/* 카드 상단 행 */
+.ap-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* 아이콘 박스 */
+.ap-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+/* 제목 + 타입 */
+.ap-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ap-card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ap-card-type {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ? · × 버튼 */
+.ap-card-btns {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.ap-icon-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.ap-icon-btn:hover {
+  border-color: var(--border-bright);
+  color: var(--text);
+}
+
+/* 설명 */
+.ap-card-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  flex: 1;
+}
+
+/* 에이전트 태그 */
+.ap-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ap-tag {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 9px;
+}
+
+.ap-tag-arrow {
+  color: var(--text-muted);
+  font-size: 11px;
+  align-self: center;
+}
+
+/* 실행 버튼 */
+.ap-run-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 7px;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter var(--transition-fast), transform var(--transition-fast);
+  margin-top: 2px;
+}
+
+.ap-run-btn:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.ap-run-btn:active {
+  transform: translateY(0);
+}
+
+/* 새 파이프라인 만들기 (대시 카드) */
+.ap-card-new {
+  background: transparent;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 13px;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.ap-card-new:hover {
+  border-color: var(--border-bright);
+  color: var(--text);
+}
+
+.ap-card-new-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.ap-card-new-label {
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ─── 파이프라인 실행 모달 ─── */
+.pipeline-run-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pipeline-run-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 모달 헤더 */
+.prm-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.prm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  background: var(--surface2);
+}
+
+.prm-header-info {
+  flex: 1;
+}
+
+.prm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.prm-subtitle {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.prm-close {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color var(--transition-fast), background var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.prm-close:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+/* 모달 섹션 공통 */
+.prm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prm-section-label {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* 입력 textarea */
+.prm-textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: var(--font-sans);
+  padding: 14px 16px;
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+  line-height: 1.6;
+  transition: border-color var(--transition-fast);
+}
+
+.prm-textarea:focus {
+  outline: none;
+  border-color: var(--border-bright);
+}
+
+/* 출력 언어 선택 */
+.prm-lang-section {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prm-lang-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.prm-lang-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.prm-lang-btn.active {
+  border-color: var(--accent-pipe);
+  color: var(--text);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.prm-lang-btn:hover:not(.active) {
+  border-color: var(--border-bright);
+  color: var(--text);
+}
+
+/* 파일 첨부 영역 */
+.prm-file-area {
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prm-file-label {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.prm-file-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prm-file-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.prm-file-btn:hover {
+  border-color: var(--border-bright);
+}
+
+.prm-file-name {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+/* 파이프라인 단계 박스 */
+.prm-steps-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+
+.prm-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prm-step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prm-step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent-pipe);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.prm-step-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.prm-step-role {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-left: 4px;
+}
+
+/* 실행 시작 버튼 — 기본: 비활성 */
+.prm-run-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 9px;
+  border: none;
+  background: var(--surface2);
+  color: var(--text-muted, var(--text-dim));
+  font-size: 15px;
+  font-weight: 600;
+  cursor: not-allowed;
+  pointer-events: none;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  opacity: 0.5;
+}
+
+/* 실행 시작 버튼 — 활성 */
+.prm-run-btn.enabled {
+  background: var(--accent-pipe, #5b5ef4);
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.prm-run-btn.enabled:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.prm-run-btn.enabled:active {
+  transform: translateY(0);
+}
+
+/* ─── 하단 실행 바 (2단: 칩 행 + 단계 패널) ─── */
+.exec-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─ 상단 칩 행 ─ */
+.exec-bar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--border);
+  min-height: 50px;
+}
+
+.exec-bar-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.exec-bar-items {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  flex: 1;
+  scrollbar-width: none;
+}
+
+.exec-bar-items::-webkit-scrollbar { display: none; }
+
+/* ─ 실행 칩 ─ */
+.exec-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 10px;
+  min-width: 160px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.exec-chip.active {
+  border-color: var(--accent-pipe);
+  background: rgba(91, 94, 244, 0.08);
+}
+
+.exec-chip:hover:not(.active) {
+  border-color: var(--border-bright);
+}
+
+.exec-chip-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.exec-chip-info { flex: 1; min-width: 0; }
+
+.exec-chip-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.exec-chip-progress {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  margin-top: 1px;
+}
+
+/* 상태 배지 */
+.exec-chip-badge {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.exec-chip-badge.waiting {
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.exec-chip-badge.running {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.exec-chip-badge.done {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.exec-chip-close {
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: color var(--transition-fast);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.exec-chip-close:hover { color: var(--text); }
+
+/* ─ 헤더 토글 버튼 ─ */
+.exec-bar-toggle {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.exec-bar-toggle:hover {
+  border-color: var(--border-bright);
+  color: var(--text);
+  background: var(--surface2);
+}
+
+/* ─ 하단 단계 패널 ─ */
+.exec-detail-panel {
+  padding: 14px 20px 16px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.25s ease;
+  opacity: 1;
+}
+
+/* 패널 닫힌 상태 */
+.exec-detail-panel.closed {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+}
+
+/* 패널 헤더 (라벨 + 닫기 버튼) */
+.exec-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.exec-detail-close {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color var(--transition-fast), background var(--transition-fast);
+  line-height: 1;
+}
+
+.exec-detail-close:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+.exec-detail-label {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0;
+}
+
+/* ─── 실행 단계 목록 (파이프라인 카드 스타일) ─── */
+.exec-steps-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─ 단계 아이템 ─ */
+.es-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* 왼쪽: 원형 아이콘 + 커넥터 라인 */
+.es-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 40px;
+}
+
+.es-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.es-circle.es-running {
+  animation: es-circle-pulse 1.6s ease-in-out infinite;
+  border-width: 2.5px;
+}
+
+@keyframes es-circle-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--es-color, rgba(91,94,244,0.45)); }
+  60%       { box-shadow: 0 0 0 7px transparent; }
+}
+
+/* 세로 커넥터 */
+.es-connector {
+  width: 1px;
+  min-height: 28px;
+  flex: 1;
+  background: var(--border);
+  margin: 3px 0;
+}
+
+/* 오른쪽: 에이전트 정보 + 아웃풋 */
+.es-body {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 16px;
+}
+
+.es-item:last-child .es-body {
+  padding-bottom: 0;
+}
+
+/* 메인 행 (이름 + 뱃지 + 모델 + 상태) */
+.es-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 40px;
+}
+
+.es-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 에이전트 이름 — 대문자 컬러 */
+.es-name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.es-item.es-pending .es-name {
+  opacity: 0.45;
+}
+
+/* 역할 뱃지 */
+.es-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+}
+
+.es-item.es-pending .es-badge {
+  opacity: 0.45;
+}
+
+/* 모델명 */
+.es-model {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.es-item.es-pending .es-model {
+  opacity: 0.45;
+}
+
+/* 상태 표시 */
+.es-status {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.es-status.st-pending { color: var(--text-dim); opacity: 0.6; }
+.es-status.st-running { color: #60a5fa; }
+.es-status.st-done    { color: #4ade80; }
+
+/* 실행 중 점 애니메이션 */
+.es-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #60a5fa;
+  animation: es-dot-blink 1s ease-in-out infinite;
+}
+
+@keyframes es-dot-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
+}
+
+/* 아웃풋 파일 행 */
+.es-output {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding-left: 2px;
+}
+
+.es-output-arrow {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.es-filename {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 7px;
+}
+
+.es-item.es-pending .es-filename {
+  opacity: 0.45;
+}
+
+.es-file-status {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+}
+
+.es-file-status.st-running { color: #60a5fa; }
+.es-file-status.st-done    { color: #4ade80; }
+
+/* 콘텐츠 하단 여백 (JS에서 동적으로 설정) */
+body.exec-bar-visible .main {
+  transition: padding-bottom 0.25s ease;
+}
+
+/* ─── 계정 탭 — 섹션 카드 ─── */
+.settings-section {
+  margin-bottom: 16px;
+  padding: 24px;
+}
+
+.settings-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.settings-section-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 540px;
+}
+
+.settings-section-actions {
+  margin-top: 20px;
+}
+
+/* ─── 위험 영역 카드 (계정 삭제) ─── */
+.danger-section {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.danger-section:hover {
+  border-color: rgba(239, 68, 68, 0.55);
+}
+
+.danger-title {
+  color: #ef4444;
+}
+
+/* ─── 위험 버튼 ─── */
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.8);
+}
+
+/* ─── index.html 컴팩트 상태 배너 ─── */
+.api-status-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.api-status-banner a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  transition: color var(--transition-fast);
+}
+
+.api-status-banner a:hover {
+  color: var(--text);
+}
+
+#api-status-indicator {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+#api-status-indicator.connected {
+  color: var(--accent-dev);
+}

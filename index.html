@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="./css/style.css">
   <link rel="stylesheet" href="./css/pipeline.css">
   <link rel="stylesheet" href="./css/pipeline-editor.css">
+  <link rel="stylesheet" href="./css/settings.css">
 </head>
 <body>
 
@@ -44,54 +45,10 @@
         <span class="context-text">컨텍스트 누적 중 — 1차 실행 결과물이 다음 실행에 자동 포함됩니다</span>
       </div>
 
-      <!-- API 키 설정 카드 -->
-      <div class="card api-key-card">
-        <div class="card-header">
-          <div>
-            <div class="card-title-row">
-              <div class="card-title">AI 연결 설정</div>
-              <span class="tooltip-wrap" aria-label="API 키 안내">
-                <span class="tooltip-icon" tabindex="0">?</span>
-                <div class="tooltip-popup" role="tooltip">
-                  <div style="font-weight:600;margin-bottom:6px">API 키 안내</div>
-                  <div style="margin-bottom:4px">🤖 <b>Claude</b> — <code>sk-ant-...</code> 형식</div>
-                  <div style="margin-bottom:8px;font-size:11px"><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:underline">Anthropic Console에서 발급</a></div>
-                  <div style="margin-bottom:4px">◆ <b>OpenAI</b> — <code>sk-...</code> 형식</div>
-                  <div style="margin-bottom:8px;font-size:11px"><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:underline">OpenAI Platform에서 발급</a></div>
-                  <div style="margin-bottom:4px">🔌 <b>커스텀</b> — Groq, Together AI, Ollama 등</div>
-                  <div style="font-size:11px">OpenAI-compatible 엔드포인트 + 키 입력</div>
-                </div>
-              </span>
-            </div>
-            <div class="card-subtitle" id="api-key-subtitle">Anthropic Claude API 키를 입력하면 실제 AI가 결과물을 생성합니다</div>
-          </div>
-          <div class="api-key-status" id="api-key-status"></div>
-        </div>
-        <div class="provider-tabs" id="provider-tabs">
-          <button class="provider-tab active" data-provider="claude" aria-pressed="true">🤖 Claude</button>
-          <button class="provider-tab" data-provider="openai" aria-pressed="false">◆ OpenAI</button>
-          <button class="provider-tab" data-provider="custom" aria-pressed="false">🔌 커스텀</button>
-        </div>
-        <!-- 커스텀 탭 전용 엔드포인트·모델 입력 (기본 숨김) -->
-        <div id="custom-api-fields" style="display:none">
-          <div class="api-key-row" style="margin-bottom:6px">
-            <input type="text" id="custom-endpoint-input" class="brand-input api-key-input"
-              placeholder="https://api.groq.com/openai/v1" aria-label="커스텀 API 엔드포인트" autocomplete="off" />
-          </div>
-          <div class="api-key-row" style="margin-bottom:6px">
-            <input type="text" id="custom-model-input" class="brand-input api-key-input"
-              placeholder="llama-3.1-70b" aria-label="커스텀 기본 모델명" autocomplete="off" />
-          </div>
-        </div>
-        <div class="api-key-row">
-          <input type="password" id="api-key-input" class="brand-input api-key-input"
-            placeholder="sk-ant-api03-..." aria-label="API 키 입력" autocomplete="off" />
-          <button class="btn btn-primary btn-sm" id="api-key-save-btn" aria-label="API 키 저장">저장</button>
-          <button class="btn btn-ghost btn-sm" id="api-key-clear-btn" aria-label="API 키 삭제" style="display:none">삭제</button>
-        </div>
-        <div class="api-key-link-row" id="api-key-link-row" style="display:none">
-          <a id="api-key-link" href="#" target="_blank" rel="noopener" class="api-key-link">API 키 발급하기 →</a>
-        </div>
+      <!-- AI 연결 상태 배너 (설정 페이지로 이동) -->
+      <div class="api-status-banner">
+        <span id="api-status-indicator">○ 연결 안됨 (목업 모드)</span>
+        <a href="./pages/settings.html">AI 연결 설정 →</a>
       </div>
 
 

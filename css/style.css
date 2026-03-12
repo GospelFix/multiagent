@@ -3,7 +3,7 @@
    CSS 변수, 사이드바, 공통 컴포넌트
    ======================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Montserrat:wght@400;500;600;700;800&display=swap');
 
 /* ─── CSS 변수 ─── */
 :root {
@@ -30,7 +30,7 @@
   --glow-design: rgba(124, 58, 237, 0.10);
   --glow-qa: rgba(37, 99, 235, 0.10);
 
-  --font-sans: 'Syne', sans-serif;
+  --font-sans: 'Montserrat', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   --sidebar-width: 220px;

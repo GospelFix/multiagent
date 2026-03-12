@@ -1070,7 +1070,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* 탭 클릭 이벤트 등록 */
+  /* Provider 탭 이벤트 등록 (api-key-card가 있는 환경에서만 동작) */
   document.querySelectorAll('.provider-tab').forEach(btn => {
     btn.addEventListener('click', () => applyProviderTab(btn.dataset.provider));
   });
@@ -1078,6 +1078,9 @@ document.addEventListener('DOMContentLoaded', () => {
   /* API 키 UI 초기화 (탭 상태 포함) */
   applyProviderTab(selectedProvider);
   updateApiKeyUI();
+
+  /* 컴팩트 상태 배너 초기화 (index.html) */
+  updateStatusBanner();
 
   /* API 키 저장 버튼 */
   document.getElementById('api-key-save-btn')?.addEventListener('click', () => {
@@ -1115,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/** API 키 상태 UI 업데이트 */
+/** API 키 상태 UI 업데이트 (레거시 — api-key-card가 있는 환경용) */
 const updateApiKeyUI = () => {
   const statusEl  = document.getElementById('api-key-status');
   const clearBtn  = document.getElementById('api-key-clear-btn');
@@ -1149,4 +1152,24 @@ const updateApiKeyUI = () => {
     /* 현재 탭 기준으로 placeholder·링크 복원 */
     applyProviderTab(selectedProvider);
   }
+
+  /* 컴팩트 상태 배너 업데이트 (index.html) */
+  updateStatusBanner();
+};
+
+/** 컴팩트 상태 배너 업데이트 (index.html의 #api-status-indicator) */
+const updateStatusBanner = () => {
+  const indicator = document.getElementById('api-status-indicator');
+  if (!indicator) return;
+  const apiKeys = Store.get().apiKeys || {};
+  const connectedLabels = [
+    apiKeys.claude ? 'Claude' : null,
+    apiKeys.openai ? 'OpenAI' : null,
+    apiKeys.custom ? '커스텀' : null,
+  ].filter(Boolean);
+  const hasAnyKey = connectedLabels.length > 0;
+  indicator.className = hasAnyKey ? 'connected' : '';
+  indicator.textContent = hasAnyKey
+    ? `● ${connectedLabels.join(' · ')} 연결됨`
+    : '○ 연결 안됨 (목업 모드)';
 };
