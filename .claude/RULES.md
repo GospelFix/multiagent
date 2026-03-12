@@ -1,6 +1,6 @@
 ---
 name: Claude 작업 규칙
-section: Claude.code의 행동 규칙 입니다.
+section: Claude Code의 행동 규칙 입니다.
 updated: 2025-01-30
 ---
 
