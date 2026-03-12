@@ -1,44 +1,29 @@
 /* ========================================
    History JS — 히스토리 페이지 로직
    실행 카드 목록 + 클릭 시 상세 펼침
+   데이터 소스: Store.generatedRuns (localStorage)
    ======================================== */
 
 'use strict';
 
-let agentsData = [];
 let historyData = [];
 
 /* ─── 초기화 ─── */
-const init = async () => {
-  try {
-    [agentsData, historyData] = await Promise.all([
-      fetchJSON('../data/agents.json').then(d => d.agents),
-      fetchJSON('../data/history.json').then(d => d.runs),
-    ]);
+const init = () => {
+  const state = Store.get();
+  historyData = state.generatedRuns || [];
 
-    renderHistoryList();
-  } catch (e) {
-    console.error('히스토리 데이터 로드 실패:', e);
+  if (!historyData.length) {
     renderEmpty();
+  } else {
+    renderHistoryList();
   }
-};
-
-/** JSON fetch 헬퍼 */
-const fetchJSON = async (url) => {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`fetch 실패: ${url}`);
-  return res.json();
 };
 
 /* ─── 히스토리 목록 렌더링 ─── */
 const renderHistoryList = () => {
   const container = document.getElementById('history-list');
   if (!container) return;
-
-  if (!historyData.length) {
-    renderEmpty();
-    return;
-  }
 
   const cardsHTML = historyData.map(run => buildHistoryCard(run)).join('');
   container.innerHTML = cardsHTML;
@@ -56,6 +41,10 @@ const renderHistoryList = () => {
       window.location.href = `./output.html?run=${btn.dataset.runId}`;
     });
   });
+
+  /* 총 건수 업데이트 */
+  const totalEl = document.getElementById('total-runs');
+  if (totalEl) totalEl.textContent = historyData.length;
 };
 
 /** 히스토리 카드 HTML 빌드 */
@@ -66,15 +55,18 @@ const buildHistoryCard = (run) => {
     ? '<span class="history-status-badge badge-completed">완료</span>'
     : '<span class="history-status-badge badge-running">실행 중</span>';
 
+  /* agentsSnapshot 우선, 없으면 빈 배열 폴백 */
+  const agentsSnapshot = run.agentsSnapshot || [];
+
   /* 에이전트별 결과 행 */
-  const resultRowsHTML = run.results.map(result => {
-    const agent = agentsData.find(a => a.id === result.agentId);
+  const resultRowsHTML = (run.results || []).map(result => {
+    const agent = agentsSnapshot.find(a => a.id === result.agentId);
     if (!agent) return '';
 
     const durationText = result.duration ? `${result.duration}s` : '—';
-    const tokensText = result.tokens ? result.tokens.toLocaleString() : '—';
-    const statusIcon = result.status === 'done' ? '✓' : result.status === 'running' ? '…' : '–';
-    const iconColor = result.status === 'done'
+    const tokensText   = result.tokens   ? result.tokens.toLocaleString() : '—';
+    const statusIcon   = result.status === 'done' ? '✓' : result.status === 'running' ? '…' : '–';
+    const iconColor    = result.status === 'done'
       ? `background:var(${agent.glowVar})`
       : 'background:var(--surface)';
 
@@ -114,11 +106,11 @@ const buildHistoryCard = (run) => {
           <div class="history-run-meta">
             <span>${createdAt}</span>
             <span>${run.completedSteps}/${run.totalSteps} 단계 완료</span>
-            <span>총 ${run.totalTokens.toLocaleString()} 토큰</span>
+            <span>총 ${(run.totalTokens || 0).toLocaleString()} 토큰</span>
           </div>
         </div>
         <div class="history-run-stats">
-          <div class="stat-value">${run.totalTokens.toLocaleString()}</div>
+          <div class="stat-value">${(run.totalTokens || 0).toLocaleString()}</div>
           <div class="stat-label">총 토큰</div>
         </div>
       </div>

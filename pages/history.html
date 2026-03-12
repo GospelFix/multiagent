@@ -50,17 +50,6 @@
 <script src="../js/app.js"></script>
 <script src="../js/history.js"></script>
 
-<script>
-  /* 총 실행 건수 표시 */
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-      const list = document.getElementById('history-list');
-      const cards = list?.querySelectorAll('.history-card');
-      const totalEl = document.getElementById('total-runs');
-      if (totalEl && cards) totalEl.textContent = cards.length;
-    }, 500);
-  });
-</script>
 
 </body>
 </html>
