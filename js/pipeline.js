@@ -690,7 +690,19 @@ const buildStepHTML = (agent, status, result, isLast, state, idx) => {
   const color = STEP_PALETTE[idx % STEP_PALETTE.length];
 
   const override = state.agentOverrides[agent.id];
-  const modelName = (override && override.model) ? override.model : agent.model;
+  const rawModel    = (override && override.model) ? override.model : agent.model;
+  /* 해당 에이전트의 native provider 키가 없으면 사용 가능한 키의 기본 모델로 표시 */
+  const apiKeys     = state.apiKeys || {};
+  const nativeProv  = detectProvider(rawModel);
+  const hasNativeKey = (nativeProv === 'claude' && !!apiKeys.claude) ||
+    (nativeProv === 'openai' && !!apiKeys.openai) ||
+    (nativeProv === 'custom' && !!apiKeys.custom);
+  let modelName = rawModel;
+  if (!hasNativeKey && !(override && override.model)) {
+    if (apiKeys.openai)  modelName = 'gpt-4o-mini';
+    else if (apiKeys.claude) modelName = 'claude-haiku-4-5';
+    else if (apiKeys.custom) modelName = state.customModelId || 'custom';
+  }
 
   const rankData = (override && override.rank && RANK_MAP[override.rank])
     ? RANK_MAP[override.rank]
