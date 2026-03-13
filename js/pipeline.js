@@ -235,14 +235,18 @@ const createPendingRunTab = (label) => {
     ? `${label} (${historyData.length + 1}차)`
     : `${historyData.length + 1}차 실행`;
 
-  /* 현재 Store 오버라이드를 스냅샷에 반영 — 각 실행의 직급이 영구 보존됨 */
+  /* 현재 Store 오버라이드를 스냅샷에 반영 — 각 실행의 직급·모델이 영구 보존됨 */
   const currentState = Store.get();
   const snapshotAgents = agentsData.map(agent => {
     const override = currentState.agentOverrides?.[agent.id] || {};
-    if (!override.rank) return agent;
-    const rankData = RANK_MAP[override.rank];
-    if (!rankData) return agent;
-    return { ...agent, rank: rankData.label, rankIcon: rankData.icon };
+    let updated = agent;
+    if (override.rank && RANK_MAP[override.rank]) {
+      updated = { ...updated, rank: RANK_MAP[override.rank].label, rankIcon: RANK_MAP[override.rank].icon };
+    }
+    if (override.model) {
+      updated = { ...updated, model: override.model };
+    }
+    return updated;
   });
 
   const newRun = {
@@ -929,13 +933,18 @@ const simulateRun = async (startAgentId) => {
   if (runBtn) { runBtn.disabled = true; runBtn.textContent = '⏳ 실행 중...'; }
 
   /* 실행 시점의 최신 오버라이드(직급·모델 등)를 agentsData에 반영 — 재방문 후 변경된 설정 동기화 */
-  const runOverrides = Store.get().agentOverrides || {};
+  const runState    = Store.get();
+  const runOverrides = runState.agentOverrides || {};
   agentsData = agentsData.map(agent => {
     const ov = runOverrides[agent.id] || {};
-    if (!ov.rank) return agent;
-    const rd = RANK_MAP[ov.rank];
-    if (!rd) return agent;
-    return { ...agent, rank: rd.label, rankIcon: rd.icon };
+    let updated = agent;
+    if (ov.rank && RANK_MAP[ov.rank]) {
+      updated = { ...updated, rank: RANK_MAP[ov.rank].label, rankIcon: RANK_MAP[ov.rank].icon };
+    }
+    if (ov.model) {
+      updated = { ...updated, model: ov.model };
+    }
+    return updated;
   });
 
   const startIdx = startAgentId ? agentsData.findIndex(a => a.id === startAgentId) : 0;
