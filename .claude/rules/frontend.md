@@ -24,6 +24,7 @@ updated: 2026-03-30
 
 - 변수/함수: `camelCase`
 - 상수: `UPPER_SNAKE_CASE`
+- 클래스: `PascalCase`
 - 파일: `kebab-case`
 - 불린: `is` / `has` / `should` 접두사
 

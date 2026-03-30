@@ -34,8 +34,32 @@ $ARGUMENTS가 있으면 해당 파일/모듈만 검토합니다.
 
 ## 리뷰 체크포인트
 
-1. **보안** — API 키 노출 여부, XSS 취약점
+1. **보안** — API 키 노출 여부, XSS 취약점 (`innerHTML` 사용자 입력)
 2. **상태 관리** — Store 읽기/쓰기 패턴 준수 여부
 3. **접근성** — aria-label, 시맨틱 태그, alt 속성
 4. **반응형** — 모바일 레이아웃, 햄버거 메뉴 동작
 5. **코드 스타일** — 컨벤션(camelCase, UPPER_SNAKE_CASE, 한국어 주석) 준수
+
+## MVP 체크리스트
+
+### HTML
+- [ ] 시맨틱 태그 사용 (`<header>`, `<main>`, `<section>`, `<footer>`)
+- [ ] 접근성 속성 (`alt`, `aria-label`)
+- [ ] 모바일 viewport 설정
+
+### CSS
+- [ ] CSS 변수 사용 (`--accent-pipe`, `--bg`, `--surface` 등)
+- [ ] `clamp()` 폰트 크기
+- [ ] 최소 44px 터치 영역
+- [ ] 모바일 우선 미디어쿼리
+
+### JavaScript
+- [ ] 함수형 패턴 (순수 함수, 불변성)
+- [ ] async/await 비동기 처리
+- [ ] 폼 중복 제출 방지
+- [ ] `console.log` 제거 확인
+
+### 보안
+- [ ] API 키 하드코딩 없음
+- [ ] innerHTML XSS 방지 (textContent 사용)
+- [ ] 이미지 용량 검증 (5MB 이하)
